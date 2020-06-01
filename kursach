@@ -12,8 +12,9 @@ class zip
 {
 	string str;      // строка из файла
 	string bit_str;  // строка для кодирования/декодирования
+	string strk;
 	int z;           // количество дополнительных битов, чтобы записать байт
-	string stroka;
+
 public:
 	zip() {}
 	void comp(string input_name, string output_name)
@@ -184,7 +185,7 @@ public:
 		ifstream was;
 		was.open("alf.txt");
 		map <char, string> des;
-		stroka.append((std::istreambuf_iterator<char>(was)),
+		strk.append((std::istreambuf_iterator<char>(was)),
 			std::istreambuf_iterator<char>());
 
 		ofstream fout;
@@ -200,10 +201,10 @@ public:
 		else
 		{
 			cout << "file " << "alf.txt" << " is open" << endl;
-		/*	cout << stroka << endl;*/
+		/*	cout << strk << endl;*/
 			map <string, char> dic;
 			//// заполняет словарь dic кодами elias gamma code по строке 
-			fill_dic(dic, stroka);
+			fill_dic(dic, strk);
 
 			//пока строка кодирование не пуста 
 			while (bit_str.length())
