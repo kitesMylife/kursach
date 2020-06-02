@@ -126,32 +126,7 @@ public:
         fout.close();
 
     }
-    void size_file(string output_name)
-    {
-        fstream file(output_name);
-        int size = 0;
-        file.seekg(0, std::ios::end);
-        size = file.tellg();
-        cout << size << " bytes";
-        file.close();
-
-    }
-    void size_files(string output_name, string input_name)
-    {
-
-        fstream file(output_name);
-        double size = 0;
-        file.seekg(0, std::ios::end);
-        size = file.tellg();
-        file.close();
-        fstream file2(input_name);
-        double size1 = 0;
-        file2.seekg(0, std::ios::end);
-        size1 = file2.tellg();
-        file2.close();
-
-        cout << size / size1;
-    }
+  
     void decomp(string input_name, string output_name)
     {
         ifstream fin(input_name, std::ios::binary);
@@ -258,20 +233,33 @@ public:
         was.close();
         fout.close();
     }
-    void size(string input_name, string output_name)
+    void size(string output_name)
     {
-        fstream file("abc.txt");
+        fstream file(output_name);
+        int size = 0;
+        file.seekg(0, std::ios::end);
+        size = file.tellg();
+        cout << size << " bytes";
+        file.close();
+
+    }
+    void size_(string output_name, string input_name)
+    {
+
+        fstream file(output_name);
         double size = 0;
         file.seekg(0, std::ios::end);
         size = file.tellg();
         file.close();
-        fstream fileс("compressed.txt");
-        double sizec = 0;
-        fileс.seekg(0, std::ios::end);
-        sizec = fileс.tellg();
-        fileс.close();
-        cout << " Compression ratio - " << size << " bytes /" << sizec << "bytes = " << size / sizec << endl;
+        fstream file2(input_name);
+        double size1 = 0;
+        file2.seekg(0, std::ios::end);
+        size1 = file2.tellg();
+        file2.close();
+
+        cout << size / size1;
     }
+
 };
 
 
@@ -297,7 +285,13 @@ int main()
         cin >> way;
 		obj1.comp(way, "compressed.txt");
 		cout << "file  compressed to 'compressed.txt'" << endl;
-		obj1.size(way, "compressed.txt");
+        cout << "Compression ratio - ";
+		obj1.size(way);
+        cout << " / ";
+        obj1.size("compressed.txt");
+        cout << " = ";
+        obj1.size_(way, "compressed.txt");
+        cout << endl;
 		cout << "Done!" << endl;
 		break;
 	case 'd':
@@ -311,6 +305,4 @@ int main()
 			<< "\t-h[--help] Show help$\n";
 		break;
 	}
-	// 10011101010101010101 -> file (8)
-	// 10011101010101010101 -> str 10011101010101010101
 }
