@@ -4,247 +4,278 @@
 #include <bitset>
 #include <vector>
 #include <algorithm>
-#include <map>
+#include <unordered_map>
 #include <cmath>
+#include <conio.h>
+
 using namespace std;
 
 class zip
 {
-	string str;      // строка из файла
-	string bit_str;  // строка для кодирования/декодирования
-	string strk;
-	int z;           // количество дополнительных битов, чтобы записать байт
+    string str;      // строка из файла
+    string bit_str;  // строка для кодирования/декодирования
+    int z;           // количество дополнительных битов, чтобы записать байт
+    string strk;   // строка словаря
 
 public:
-	zip() {}
-	void comp(string input_name, string output_name)
-	{
-		ifstream fin(input_name, std::ios::binary);
-		if (!fin.is_open())
-		{
-			cout << "file is not open" << endl;
-			return;
-		}
-		else
-			cout << "file is open" << endl;
+    zip() {}
+    void comp(string input_name, string output_name)
+    {
+        ifstream fin(input_name, std::ios::binary);
+        if (!fin.is_open())
+        {
+            cout << "file is not open" << endl;
+            return;
+        }
+        else
+            cout << "file is open" << endl;
 
-		str.clear();
-		str.append((std::istreambuf_iterator<char>(fin)),
-			std::istreambuf_iterator<char>());
-		//cout << str << endl;
-		fin.close();
+        str.clear();
+        str.append((std::istreambuf_iterator<char>(fin)),
+            std::istreambuf_iterator<char>());
+        //cout << str << endl;
+        fin.close();
 
-		// кодирование основной строки str в сторку bit_str
-		encode(string(output_name));
+        // кодирование основной строки str в сторку bit_str
+        encode(string(output_name));
 
-	/*	cout << bit_str.length() << endl;*/
+        //cout <<"bits : " <<bit_str.length() << endl;
+        //cout << "coded : ";
+        save_bits(output_name);
 
-		save_bits(output_name);
-	}
-	void encode(string output_name)
-	{
-		vector<pair<char, size_t>> arr;
-		vector<size_t> freq(128, 0);
-		for (const auto& i : str)
-			++freq[i];
-		for (size_t i = 0; i != freq.size(); i++)
-		{
-			if (freq[i] > 0)
-			{
-				arr.push_back(make_pair(char(i), freq[i]));
-			}
-		}
+    }
+    void encode(string output_name)
+    {
+        vector<pair<char, size_t>> arr;
+        vector<size_t> freq(128, 0);
+        for (const auto& i : str)
+            ++freq[i];
+        for (size_t i = 0; i != freq.size(); i++)
+        {
+            if (freq[i] > 0)
+            {
+                arr.push_back(make_pair(char(i), freq[i]));
+            }
+        }
 
-		sort(arr.begin(), arr.end(),
-			[](const auto& a, const auto& b)
-		{
-			return a.second > b.second;
-		});
-		ofstream fout;
-		fout.open("alf.txt");
-		string bits = "";
-		map <char, string>dict;
-		for (size_t i = 0; i < arr.size(); i++)
-		{
-			string temp = "";
-			int j = log2(i + 1);
-			for (int x = 0; x < j; x++)
-			{
-				temp += '0';
-			}
-			bitset<8> bs(i + 1);
-			string t = bs.to_string();
-			t = t.substr(t.find("1"));
-			temp += t;
-		/*	cout << arr[i].first << '\t' << i + 1 << '\t' << temp << endl;*/
-			dict[arr[i].first] = temp;
-			fout << arr[i].first;
-		}
-		bit_str = "";
-		for (const auto& i : str)
-		{
-			bits += dict[i];
-			bit_str += dict[i];
-		}
-	/*	cout << bits << endl;*/
-		//for (const auto& i : dict)
-		//	/*cout << i.first << '\t' << i.second << endl;*/
-	}
-	void save_bits(string output_name)
-	{
-		//cout << bit_str << endl;
-		z = 0;
-		while (bit_str.size() % 8)
-		{
-			bit_str.push_back('0');
-			++z;
-		}
-		ofstream fout(output_name, std::ios::binary);
-		bitset<8> bs;
-		for (size_t i = 0; i != bit_str.size();)
-		{
-			for (size_t j = 0; j != bs.size(); j++, i++)
-			{
-				bs[8 - 1 - j] = bit_str[i] == '0' ? 0 : 1;
-			}
-			fout << static_cast<char>(bs.to_ulong());
-		}
-		fout << "zipper" << z;
-		fout << "]]";
-		fout.close();
+        sort(arr.begin(), arr.end(),
+            [](const auto& a, const auto& b)
+        {
+            return a.second > b.second;
+        });
+        ofstream fout;
+        fout.open("alf.txt");
+        string bits = "";
+        unordered_map <char, string>dict;
+        for (size_t i = 0; i < arr.size(); i++)
+        {
+            string temp = "";
+            int j = log2(i + 1);
+            for (int x = 0; x < j; x++)
+            {
+                temp += '0';
+            }
+            bitset<8> bs(i + 1);
+            string t = bs.to_string();
+            t = t.substr(t.find("1"));
+            temp += t;
+            //cout << arr[i].first << '\t' << i + 1 << '\t' << temp << endl;
+            dict[arr[i].first] = temp;
+            fout << arr[i].first;
+        }
+        fout.close();
+        bit_str = "";
+        for (const auto& i : str)
+        {
+            bits += dict[i];
+            bit_str += dict[i];
+        }
+        /*cout << bits << endl;
+        for (const auto& i : dict)
+            cout << i.first << '\t' << i.second << endl;*/
 
-	}
-	void decomp(string input_name, string output_name)
-	{
-		ifstream fin(input_name, std::ios::binary);
-		if (!fin.is_open())
-		{
-			cout << "file is not open" << endl;
-			return;
-		}
-		else
-			cout << "file " << input_name << " is open" << endl;
-
-		str.clear();
-		str.append((std::istreambuf_iterator<char>(fin)),
-			std::istreambuf_iterator<char>());
-	/*	cout << str << endl;*/
-		fin.close();
-
-		size_t index = str.find("zipper");
-		if (index == string::npos)
-		{
-			cout << "zipper not found" << endl;
-			return;
-		}
-		z = str[index + 6] - '0';
-		/*cout << "z: " << z << endl;*/
-		str = str.substr(0, index);
-		// получаем биты из строки str и записываем в bit_str
-		// при этом учитываем z
-		bit_str.clear();
-		for (const auto& i : str)
-		{
-			bitset<8> t(i);
-			bit_str.append(t.to_string());
-		}
-		while (z > 0)
-		{
-			--z;
-			bit_str.pop_back();
-		}
-		//cout << bit_str << endl;
+            /*ofstream fout;
+            fout.open("alf.txt");
+            for (const auto& i : dict)
+                fout << i.first ;*/
 
 
-		decode();
-	}
 
-	///
-	/// заполняет словарь d кодами elias gamma code по строке f
-	void fill_dic(map <string, char>& d, string f)
-	{
-		for (int i = 0; i < f.length(); i++)
-		{
-			string tempa = "";
-			int j = log2(i + 1);
-			for (int x = 0; x < j; x++)
-			{
-				tempa += '0';
-			}
-			bitset<8> bst(i + 1);
-			string t = bst.to_string();
-			t = t.substr(t.find("1"));
-			tempa += t;
-			d[tempa] = f[i];
+    }
+    void save_bits(string output_name)
+    {
+        //cout << bit_str << endl;
+        z = 0;
+        while (bit_str.size() % 8)
+        {
+            bit_str.push_back('0');
+            ++z;
+        }
+        ofstream fout(output_name, std::ios::binary);
+        bitset<8> bs;
+        for (size_t i = 0; i != bit_str.size();)
+        {
+            for (size_t j = 0; j != bs.size(); j++, i++)
+            {
+                bs[8 - 1 - j] = bit_str[i] == '0' ? 0 : 1;
+            }
+            fout << static_cast<char>(bs.to_ulong());
+        }
+        fout << "zipper" << z;
+        fout << "]]";
+        fout.close();
 
-		}
-	}
-	void decode()
-	{
+    }
+    void size_file(string output_name)
+    {
+        fstream file(output_name);
+        int size = 0;
+        file.seekg(0, std::ios::end);
+        size = file.tellg();
+        cout << size << " bytes";
+        file.close();
 
-		ifstream was;
-		was.open("alf.txt");
-		map <char, string> des;
-		strk.append((std::istreambuf_iterator<char>(was)),
-			std::istreambuf_iterator<char>());
+    }
+    void size_files(string output_name, string input_name)
+    {
 
-		ofstream fout;
-		fout.open("decompressed.txt");
+        fstream file(output_name);
+        double size = 0;
+        file.seekg(0, std::ios::end);
+        size = file.tellg();
+        file.close();
+        fstream file2(input_name);
+        double size1 = 0;
+        file2.seekg(0, std::ios::end);
+        size1 = file2.tellg();
+        file2.close();
 
-		vector<pair<char, size_t>> array;
-		vector<size_t> freqa(128, 0);
+        cout << size / size1;
+    }
+    void decomp(string input_name, string output_name)
+    {
+        ifstream fin(input_name, std::ios::binary);
+        if (!fin.is_open())
+        {
+            cout << "file is not open" << endl;
+            return;
+        }
+        else
+            cout << "file " << input_name << " is open" << endl;
 
-		if (!was.is_open())
-		{
-			cout << " I don't see the alf " << endl;
-		}
-		else
-		{
-			cout << "file " << "alf.txt" << " is open" << endl;
-		/*	cout << strk << endl;*/
-			map <string, char> dic;
-			//// заполняет словарь dic кодами elias gamma code по строке 
-			fill_dic(dic, strk);
+        str.clear();
+        str.append((std::istreambuf_iterator<char>(fin)),
+            std::istreambuf_iterator<char>());
+        //cout << str << endl;
+        fin.close();
 
-			//пока строка кодирование не пуста 
-			while (bit_str.length())
-			{
-				int len = 1;
-				string code = bit_str.substr(0, len);
-				// читаем префикс строки bit_str пока не найдем код в словаре 
-				while (dic.find(code) == dic.end())
-				{
-					len += 2;
-					code = bit_str.substr(0, len);
-				}				
-				fout << dic[code];
+        size_t index = str.find("zipper");
+        if (index == string::npos)
+        {
+            cout << "zipper not found" << endl;
+            return;
+        }
+        z = str[index + 6] - '0';
+        //cout << "z: " << z << endl;
+        str = str.substr(0, index);
+        // получаем биты из строки str и записываем в bit_str
+        // при этом учитываем z
+        bit_str.clear();
+        for (const auto& i : str)
+        {
+            bitset<8> t(i);
+            bit_str.append(t.to_string());
+        }
+        while (z > 0)
+        {
+            --z;
+            bit_str.pop_back();
+        }
+        //cout << bit_str << endl;
 
-			/*	cout << dic[code];*/
-				// убираем найденый код из строки
-				bit_str = bit_str.substr(len, bit_str.size() - len);				
-			}
-			//cout << endl;
-		}
-		was.close();
-		fout.close();
-	}
 
-	void size(string input_name, string output_name)
-	{
-		fstream file("abc.txt");
-		double size = 0;
-		file.seekg(0, std::ios::end);
-		size = file.tellg();
-		file.close();
-		fstream fileс("compressed.txt");
-		double sizec = 0;
-		fileс.seekg(0, std::ios::end);
-		sizec = fileс.tellg();
-		fileс.close();
-		cout <<" Compression ratio:"<<size<<"/"<<sizec <<"="<< size / sizec << endl;
+        decode(output_name);
+    }
 
-	}
+    ///
+    /// заполняет словарь d кодами elias gamma code по строке f
+    void fill_dic(unordered_map <string, char>& d, string f)
+    {
+        for (int i = 0; i < f.length(); i++)
+        {
+            string tempa = "";
+            int j = log2(i + 1);
+            for (int x = 0; x < j; x++)
+            {
+                tempa += '0';
+            }
+            bitset<8> bst(i + 1);
+            string t = bst.to_string();
+            t = t.substr(t.find("1"));
+            tempa += t;
+            d[tempa] = f[i];
+
+        }
+    }
+    void decode(string output_name)
+    {
+
+        ifstream was;
+        was.open("alf.txt");
+        unordered_map <char, string> des;
+        strk.append((std::istreambuf_iterator<char>(was)),
+            std::istreambuf_iterator<char>());
+
+        ofstream fout;
+        fout.open("decompressed.txt");
+
+        vector<pair<char, size_t>> array;
+        vector<size_t> freqa(128, 0);
+
+        if (!was.is_open())
+        {
+            cout << " I don't see the alf " << endl;
+        }
+        else
+        {
+            //cout << "file " << "alf.txt" << " is open" << endl;
+            //cout << "new alf : "<<strk << endl;
+            unordered_map <string, char> dic;
+            // заполняет словарь dic кодами elias gamma code по строке
+            fill_dic(dic, strk);
+
+
+            for (size_t i = 0; i < bit_str.size(); i++)
+            {
+                int n = 0;
+                for (; bit_str[i] == '0' && i < bit_str.size(); ++n, ++i);
+                string code = bit_str.substr(i - n, 2 * n + 1);
+                //cout << code << endl;
+                fout << dic[code];
+                i += n;
+            }
+        }
+        was.close();
+        fout.close();
+    }
+    void size(string input_name, string output_name)
+    {
+        fstream file("abc.txt");
+        double size = 0;
+        file.seekg(0, std::ios::end);
+        size = file.tellg();
+        file.close();
+        fstream fileс("compressed.txt");
+        double sizec = 0;
+        fileс.seekg(0, std::ios::end);
+        sizec = fileс.tellg();
+        fileс.close();
+        cout << " Compression ratio - " << size << " bytes /" << sizec << "bytes = " << size / sizec << endl;
+    }
 };
+
+
+
 
 int main()
 {
@@ -253,7 +284,7 @@ int main()
 		<< "General options :\n"
 		<< "\tc[--compress] Compress file(-c init.txt output.compressed)\n"
 		<< "\td[--decompress] Decompress file(-d output.compressed check.txt)\n"
-		<< "\th[--help] Show help$\n";
+		<< "\th[--help] Show help\n";
 	char m = 0;
 	cin >> m;
 
