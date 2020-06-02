@@ -280,20 +280,24 @@ public:
 int main()
 {
 	zip obj1, obj2;
+
 	cout << "This is Elias gamma coding compressor for ASCII text files.\n"
 		<< "General options :\n"
 		<< "\tc[--compress] Compress file(-c init.txt output.compressed)\n"
 		<< "\td[--decompress] Decompress file(-d output.compressed check.txt)\n"
 		<< "\th[--help] Show help\n";
-	char m = 0;
+    string way;
+    char m = 0;
 	cin >> m;
 
 	switch (m)
 	{
 	case 'c':
-		obj1.comp("abc.txt", "compressed.txt");
+        cout << "Enter file name" << endl;
+        cin >> way;
+		obj1.comp(way, "compressed.txt");
 		cout << "file  compressed to 'compressed.txt'" << endl;
-		obj1.size("abc.txt", "compressed.txt");
+		obj1.size(way, "compressed.txt");
 		cout << "Done!" << endl;
 		break;
 	case 'd':
