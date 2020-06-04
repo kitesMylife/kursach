@@ -259,7 +259,6 @@ public:
 
         cout << size / size1;
     }
-
 };
 
 
@@ -271,9 +270,9 @@ int main()
 
 	cout << "This is Elias gamma coding compressor for ASCII text files.\n"
 		<< "General options :\n"
-		<< "\tc[--compress] Compress file(-c init.txt output.compressed)\n"
-		<< "\td[--decompress] Decompress file(-d output.compressed check.txt)\n"
-		<< "\th[--help] Show help\n";
+		<< "\tPress 'c' to compress file and find out the difference in file size\n"
+		<< "\tPress 'd' to decompress file\n"
+		<< "\tPress 'h' to to call up the help menu\n";
     string way;
     char m = 0;
 	cin >> m;
@@ -298,11 +297,7 @@ int main()
 		obj2.decomp("compressed.txt", "qwe.txt");
 		break;
 	case 'h':
-		cout << "This is Elias gamma coding compressor for ASCII text files.\n"
-			<< "General options :\n"
-			<< "\t-c[--compress] Compress file(-c init.txt output.compressed)\n"
-			<< "\t-d[--decompress] Decompress file(-d output.compressed check.txt)\n"
-			<< "\t-h[--help] Show help$\n";
+		cout << "To compress the file, place it in the .exe folder and indicate in the program its name along with the extension\n";
 		break;
 	}
 }
