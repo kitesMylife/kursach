@@ -170,6 +170,7 @@ public:
 
 
         decode(output_name);
+            cout << "decompressed.txt created" << endl; 
     }
 
     ///
@@ -295,6 +296,7 @@ int main()
 		break;
 	case 'd':
 		obj2.decomp("compressed.txt", "qwe.txt");
+        cout << "Decompression done!" << endl;
 		break;
 	case 'h':
 		cout << "To compress the file, place it in the .exe folder and indicate in the program its name along with the extension\n";
